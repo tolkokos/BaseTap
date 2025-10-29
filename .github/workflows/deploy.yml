@@ -1,0 +1,69 @@
+name: Deploy BaseTap (Transparent)
+
+on:
+  workflow_dispatch:
+    inputs:
+      network:
+        type: choice
+        options: [sepolia, base, baseSepolia]
+        required: true
+        default: sepolia
+      verify:
+        type: boolean
+        default: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm i -g pnpm && pnpm i
+      - run: pnpm build
+
+      - name: Write .env
+        run: |
+          echo "PRIVATE_KEY=${{ secrets.PRIVATE_KEY }}" >> .env
+          echo "OWNER_ADDRESS=${{ secrets.OWNER_ADDRESS }}" >> .env
+          echo "TREASURY_ADDRESS=${{ secrets.TREASURY_ADDRESS }}" >> .env
+          echo "SEPOLIA_RPC_URL=${{ secrets.SEPOLIA_RPC_URL }}" >> .env
+          echo "BASE_RPC_URL=${{ secrets.BASE_RPC_URL }}" >> .env
+          echo "BASE_SEPOLIA_RPC_URL=${{ secrets.BASE_SEPOLIA_RPC_URL }}" >> .env
+          echo "ETHERSCAN_API_KEY=${{ secrets.ETHERSCAN_API_KEY }}" >> .env
+          echo "BASESCAN_API_KEY=${{ secrets.BASESCAN_API_KEY }}" >> .env
+          echo "BASESCAN_SEPOLIA_API_KEY=${{ secrets.BASESCAN_SEPOLIA_API_KEY }}" >> .env
+          echo "USDC_ADDRESS=${{ secrets.USDC_ADDRESS }}" >> .env
+          echo "USDC_ADDRESS_BASE=${{ secrets.USDC_ADDRESS_BASE }}" >> .env
+          echo "USDC_ADDRESS_SEPOLIA=${{ secrets.USDC_ADDRESS_SEPOLIA }}" >> .env
+          echo "USDC_ADDRESS_BASE_SEPOLIA=${{ secrets.USDC_ADDRESS_BASE_SEPOLIA }}" >> .env
+
+      - name: Deploy proxy (transparent)
+        id: deploy
+        run: |
+          case "${{ github.event.inputs.network }}" in
+            sepolia) NET=sepolia ;;
+            base) NET=base ;;
+            baseSepolia) NET=baseSepolia ;;
+          esac
+          npx hardhat run --network "$NET" scripts/deploy-transparent.ts | tee deploy.log
+          PROXY=$(grep "BaseTap Proxy:" deploy.log | awk '{print $3}')
+          IMPL=$(grep "Implementation:" deploy.log | awk '{print $2}')
+          ADMIN=$(grep "ProxyAdmin:" deploy.log | awk '{print $2}')
+          echo "proxy=$PROXY" >> $GITHUB_OUTPUT
+          echo "impl=$IMPL" >> $GITHUB_OUTPUT
+          echo "admin=$ADMIN" >> $GITHUB_OUTPUT
+          echo "Proxy: $PROXY"; echo "Impl: $IMPL"; echo "Admin: $ADMIN"
+
+      - name: Verify implementation
+        if: ${{ github.event.inputs.verify == 'true' }}
+        env:
+          PROXY_ADDRESS: ${{ steps.deploy.outputs.proxy }}
+        run: |
+          case "${{ github.event.inputs.network }}" in
+            sepolia) NET=sepolia ;;
+            base) NET=base ;;
+            baseSepolia) NET=baseSepolia ;;
+          esac
+          npx hardhat run --network "$NET" scripts/verify-impl.ts
