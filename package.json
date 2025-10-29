@@ -1,0 +1,25 @@
+{
+  "name": "basetap",
+  "version": "0.4.0",
+  "license": "MIT",
+  "private": false,
+  "scripts": {
+    "build": "hardhat compile",
+    "deploy:proxy:sepolia": "hardhat run --network sepolia scripts/deploy-transparent.ts",
+    "deploy:proxy:base": "hardhat run --network base scripts/deploy-transparent.ts",
+    "deploy:proxy:base-sepolia": "hardhat run --network baseSepolia scripts/deploy-transparent.ts",
+    "upgrade": "hardhat run scripts/upgrade.ts",
+    "verify:impl": "hardhat run scripts/verify-impl.ts"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "@openzeppelin/contracts": "^5.0.2",
+    "@openzeppelin/contracts-upgradeable": "^5.0.2",
+    "@openzeppelin/hardhat-upgrades": "^3.5.0",
+    "dotenv": "^16.4.5",
+    "ethers": "^6.13.0",
+    "hardhat": "^2.22.7",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
+  }
+}
