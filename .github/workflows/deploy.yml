@@ -19,17 +19,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Show repo tree (diagnostics)
-        run: |
-          echo "Commit: $(git rev-parse --short HEAD)"
-          ls -la
-          echo "---- scripts ----"
-          ls -la scripts || true
-          echo "---- contracts ----"
-          ls -la contracts || true
-          echo "---- package.json ----"
-          cat package.json
-
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -43,23 +32,22 @@ jobs:
       - name: Build
         run: pnpm build
 
-      - name: Write .env
+      - name: Write .env from secrets + variables
         run: |
           echo "PRIVATE_KEY=${{ secrets.PRIVATE_KEY }}" >> .env
           echo "OWNER_ADDRESS=${{ secrets.OWNER_ADDRESS }}" >> .env
           echo "TREASURY_ADDRESS=${{ secrets.TREASURY_ADDRESS }}" >> .env
-          echo "SEPOLIA_RPC_URL=${{ secrets.SEPOLIA_RPC_URL }}" >> .env
-          echo "BASE_RPC_URL=${{ secrets.BASE_RPC_URL }}" >> .env
-          echo "BASE_SEPOLIA_RPC_URL=${{ secrets.BASE_SEPOLIA_RPC_URL }}" >> .env
+          echo "SEPOLIA_RPC_URL=${{ vars.SEPOLIA_RPC_URL }}" >> .env
+          echo "BASE_RPC_URL=${{ vars.BASE_RPC_URL }}" >> .env
+          echo "BASE_SEPOLIA_RPC_URL=${{ vars.BASE_SEPOLIA_RPC_URL }}" >> .env
           echo "ETHERSCAN_API_KEY=${{ secrets.ETHERSCAN_API_KEY }}" >> .env
           echo "BASESCAN_API_KEY=${{ secrets.BASESCAN_API_KEY }}" >> .env
           echo "BASESCAN_SEPOLIA_API_KEY=${{ secrets.BASESCAN_SEPOLIA_API_KEY }}" >> .env
-          echo "USDC_ADDRESS=${{ secrets.USDC_ADDRESS }}" >> .env
-          echo "USDC_ADDRESS_BASE=${{ secrets.USDC_ADDRESS_BASE }}" >> .env
-          echo "USDC_ADDRESS_SEPOLIA=${{ secrets.USDC_ADDRESS_SEPOLIA }}" >> .env
-          echo "USDC_ADDRESS_BASE_SEPOLIA=${{ secrets.USDC_ADDRESS_BASE_SEPOLIA }}" >> .env
-          echo "---- .env written ----"
-          tail -n +1 .env | sed 's/PRIVATE_KEY=.*/PRIVATE_KEY=***masked***/'
+          echo "USDC_ADDRESS_BASE=${{ vars.USDC_ADDRESS_BASE }}" >> .env
+          echo "USDC_ADDRESS_SEPOLIA=${{ vars.USDC_ADDRESS_SEPOLIA }}" >> .env
+          echo "USDC_ADDRESS_BASE_SEPOLIA=${{ vars.USDC_ADDRESS_BASE_SEPOLIA }}" >> .env
+          echo "---- .env file ----"
+          cat .env | sed 's/PRIVATE_KEY=.*/PRIVATE_KEY=***masked***/'
 
       - name: Deploy proxy (transparent)
         id: deploy
@@ -72,17 +60,10 @@ jobs:
             baseSepolia) NET=baseSepolia ;;
           esac
           echo "Using network: $NET"
-          test -f scripts/deploy-transparent.ts || { echo "deploy-transparent.ts not found"; exit 1; }
           npx hardhat run --network "$NET" scripts/deploy-transparent.ts | tee deploy.log
-          echo "---- deploy.log ----"
-          cat deploy.log
-          PROXY=$(grep -E "BaseTap Proxy:" deploy.log | awk '{print $3}')
-          IMPL=$(grep -E "^Implementation:" deploy.log | awk '{print $2}')
-          ADMIN=$(grep -E "^ProxyAdmin:" deploy.log | awk '{print $2}')
-          if [[ -z "${PROXY:-}" || -z "${IMPL:-}" || -z "${ADMIN:-}" ]]; then
-            echo "Failed to parse addresses from deploy.log"
-            exit 1
-          fi
+          PROXY=$(grep "BaseTap Proxy:" deploy.log | awk '{print $3}')
+          IMPL=$(grep "Implementation:" deploy.log | awk '{print $2}')
+          ADMIN=$(grep "ProxyAdmin:" deploy.log | awk '{print $2}')
           echo "proxy=$PROXY" >> $GITHUB_OUTPUT
           echo "impl=$IMPL" >> $GITHUB_OUTPUT
           echo "admin=$ADMIN" >> $GITHUB_OUTPUT
