@@ -16,12 +16,32 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Show repo tree (diagnostics)
+        run: |
+          echo "Commit: $(git rev-parse --short HEAD)"
+          ls -la
+          echo "---- scripts ----"
+          ls -la scripts || true
+          echo "---- contracts ----"
+          ls -la contracts || true
+          echo "---- package.json ----"
+          cat package.json
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
           node-version: 20
-      - run: npm i -g pnpm && pnpm i
-      - run: pnpm build
+
+      - name: Install pnpm and deps
+        run: |
+          npm i -g pnpm
+          pnpm i --no-frozen-lockfile
+
+      - name: Build
+        run: pnpm build
 
       - name: Write .env
         run: |
@@ -38,23 +58,37 @@ jobs:
           echo "USDC_ADDRESS_BASE=${{ secrets.USDC_ADDRESS_BASE }}" >> .env
           echo "USDC_ADDRESS_SEPOLIA=${{ secrets.USDC_ADDRESS_SEPOLIA }}" >> .env
           echo "USDC_ADDRESS_BASE_SEPOLIA=${{ secrets.USDC_ADDRESS_BASE_SEPOLIA }}" >> .env
+          echo "---- .env written ----"
+          tail -n +1 .env | sed 's/PRIVATE_KEY=.*/PRIVATE_KEY=***masked***/'
 
       - name: Deploy proxy (transparent)
         id: deploy
+        shell: bash
         run: |
+          set -euo pipefail
           case "${{ github.event.inputs.network }}" in
             sepolia) NET=sepolia ;;
             base) NET=base ;;
             baseSepolia) NET=baseSepolia ;;
           esac
+          echo "Using network: $NET"
+          test -f scripts/deploy-transparent.ts || { echo "deploy-transparent.ts not found"; exit 1; }
           npx hardhat run --network "$NET" scripts/deploy-transparent.ts | tee deploy.log
-          PROXY=$(grep "BaseTap Proxy:" deploy.log | awk '{print $3}')
-          IMPL=$(grep "Implementation:" deploy.log | awk '{print $2}')
-          ADMIN=$(grep "ProxyAdmin:" deploy.log | awk '{print $2}')
+          echo "---- deploy.log ----"
+          cat deploy.log
+          PROXY=$(grep -E "BaseTap Proxy:" deploy.log | awk '{print $3}')
+          IMPL=$(grep -E "^Implementation:" deploy.log | awk '{print $2}')
+          ADMIN=$(grep -E "^ProxyAdmin:" deploy.log | awk '{print $2}')
+          if [[ -z "${PROXY:-}" || -z "${IMPL:-}" || -z "${ADMIN:-}" ]]; then
+            echo "Failed to parse addresses from deploy.log"
+            exit 1
+          fi
           echo "proxy=$PROXY" >> $GITHUB_OUTPUT
           echo "impl=$IMPL" >> $GITHUB_OUTPUT
           echo "admin=$ADMIN" >> $GITHUB_OUTPUT
-          echo "Proxy: $PROXY"; echo "Impl: $IMPL"; echo "Admin: $ADMIN"
+          echo "Proxy: $PROXY"
+          echo "Implementation: $IMPL"
+          echo "ProxyAdmin: $ADMIN"
 
       - name: Verify implementation
         if: ${{ github.event.inputs.verify == 'true' }}
