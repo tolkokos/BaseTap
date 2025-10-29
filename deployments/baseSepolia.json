@@ -1,0 +1,10 @@
+{
+  "proxy": "0x37a5f589dC699f2Fc18DFAA10050b2D56a071414",
+  "implementation": "0x21b599ccF8d0bB2702BEb054d4414E42E5b89b585",
+  "proxyAdmin": "0xD8c157e6A790D467e4de9E8Af88c6461F33c4F",
+  "network": "baseSepolia",
+  "deployer": "0x458e29a3F3B9aA53f5A3497026DFA81461eD4917",
+  "timestamp": "2025-10-29T22:31:00Z",
+  "verified": false,
+  "notes": "TransparentUpgradeableProxy deployment via GitHub Actions workflow"
+}
