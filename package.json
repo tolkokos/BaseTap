@@ -4,6 +4,8 @@
   "license": "MIT",
   "private": false,
   "scripts": {
+    "read:proxy": "hardhat run scripts/read-proxy-info.ts",
+    "set:token": "hardhat run scripts/set-token.ts",
     "build": "hardhat compile",
     "deploy:proxy:sepolia": "hardhat run --network sepolia scripts/deploy-transparent.ts",
     "deploy:proxy:base": "hardhat run --network base scripts/deploy-transparent.ts",
