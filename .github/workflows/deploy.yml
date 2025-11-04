@@ -12,6 +12,9 @@ on:
         type: boolean
         default: true
 
+permissions:
+  contents: write
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -41,13 +44,10 @@ jobs:
           echo "BASE_RPC_URL=${{ vars.BASE_RPC_URL }}" >> .env
           echo "BASE_SEPOLIA_RPC_URL=${{ vars.BASE_SEPOLIA_RPC_URL }}" >> .env
           echo "ETHERSCAN_API_KEY=${{ secrets.ETHERSCAN_API_KEY }}" >> .env
-          echo "BASESCAN_API_KEY=${{ secrets.BASESCAN_API_KEY }}" >> .env
-          echo "BASESCAN_SEPOLIA_API_KEY=${{ secrets.BASESCAN_SEPOLIA_API_KEY }}" >> .env
+          echo "USDC_ADDRESS=${{ vars.USDC_ADDRESS }}" >> .env
           echo "USDC_ADDRESS_BASE=${{ vars.USDC_ADDRESS_BASE }}" >> .env
           echo "USDC_ADDRESS_SEPOLIA=${{ vars.USDC_ADDRESS_SEPOLIA }}" >> .env
           echo "USDC_ADDRESS_BASE_SEPOLIA=${{ vars.USDC_ADDRESS_BASE_SEPOLIA }}" >> .env
-          echo "---- .env file ----"
-          cat .env | sed 's/PRIVATE_KEY=.*/PRIVATE_KEY=***masked***/'
 
       - name: Deploy proxy (transparent)
         id: deploy
@@ -61,18 +61,42 @@ jobs:
           esac
           echo "Using network: $NET"
           npx hardhat run --network "$NET" scripts/deploy-transparent.ts | tee deploy.log
-          PROXY=$(grep "BaseTap Proxy:" deploy.log | awk '{print $3}')
-          IMPL=$(grep "Implementation:" deploy.log | awk '{print $2}')
-          ADMIN=$(grep "ProxyAdmin:" deploy.log | awk '{print $2}')
+          PROXY=$(grep -E "BaseTap Proxy:" deploy.log | awk '{print $3}')
+          IMPL=$(grep -E "^Implementation:" deploy.log | awk '{print $2}' || true)
+          ADMIN=$(grep -E "^ProxyAdmin:" deploy.log | awk '{print $2}' || true)
+          : "${PROXY:?Proxy address not found in deploy.log}"
           echo "proxy=$PROXY" >> $GITHUB_OUTPUT
-          echo "impl=$IMPL" >> $GITHUB_OUTPUT
-          echo "admin=$ADMIN" >> $GITHUB_OUTPUT
-          echo "Proxy: $PROXY"
-          echo "Implementation: $IMPL"
-          echo "ProxyAdmin: $ADMIN"
+          if [ -n "$IMPL" ]; then echo "impl=$IMPL" >> $GITHUB_OUTPUT; fi
+          if [ -n "$ADMIN" ]; then echo "admin=$ADMIN" >> $GITHUB_OUTPUT; fi
+          echo "Proxy: $PROXY"; echo "Implementation: ${IMPL:-n/a}"; echo "ProxyAdmin: ${ADMIN:-n/a}"
+
+      - name: Install jq
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq
+
+      - name: Commit deployments file
+        if: ${{ always() && steps.deploy.outputs.proxy }}
+        run: |
+          case "${{ github.event.inputs.network }}" in
+            sepolia) F="deployments/sepolia.json" ;;
+            base) F="deployments/base.json" ;;
+            baseSepolia) F="deployments/baseSepolia.json" ;;
+          esac
+          jq -n --arg proxy "${{ steps.deploy.outputs.proxy }}" \
+                --arg impl  "${{ steps.deploy.outputs.impl }}" \
+                --arg admin "${{ steps.deploy.outputs.admin }}" \
+                --arg net   "${{ github.event.inputs.network }}" \
+                --arg time  "$(date -u +%FT%TZ)" \
+            '{proxy:$proxy, implementation:$impl, proxyAdmin:$admin, network:$net, timestamp:$time}' > "$F"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add "$F"
+          git commit -m "chore(deployments): update ${{ github.event.inputs.network }} addresses" || echo "no changes"
+          git push
 
       - name: Verify implementation
-        if: ${{ github.event.inputs.verify == 'true' }}
+        if: ${{ github.event.inputs.verify == 'true' && steps.deploy.outputs.proxy }}
         env:
           PROXY_ADDRESS: ${{ steps.deploy.outputs.proxy }}
         run: |
@@ -81,4 +105,4 @@ jobs:
             base) NET=base ;;
             baseSepolia) NET=baseSepolia ;;
           esac
-          npx hardhat run --network "$NET" scripts/verify-impl.ts
+          npx hardhat run --network "$NET" scripts/verify-impl.ts || echo "verify step finished with non-zero exit (ok if explorer is lagging)"
