@@ -62,8 +62,12 @@ contract BaseTap is
         emit TokenChanged(token);
     }
 
-    function pause() external onlyOwner { _pause(); }
-    function unpause() external onlyOwner { _unpause(); }
+    function pause() external onlyOwner {
+        _pause();
+    }
+    function unpause() external onlyOwner {
+        _unpause();
+    }
 
     // -------- payments --------
     function payETH() external payable whenNotPaused nonReentrant {
@@ -75,7 +79,10 @@ contract BaseTap is
     function payToken(uint256 amount) external whenNotPaused nonReentrant {
         address token = acceptedToken;
         if (token == address(0)) revert TokenNotSet();
-        require(IERC20(token).transferFrom(msg.sender, treasury, amount), "ERC20 transferFrom failed");
+        require(
+            IERC20(token).transferFrom(msg.sender, treasury, amount),
+            "ERC20 transferFrom failed"
+        );
         emit PaidToken(msg.sender, token, amount);
     }
 

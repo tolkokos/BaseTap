@@ -10,4 +10,7 @@ async function main() {
   console.log("Upgraded. New implementation:", impl);
 }
 
-main().catch((e) => { console.error(e); process.exit(1); });
+main().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});
