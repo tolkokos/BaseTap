@@ -24,8 +24,12 @@ contract BaseTap is
     event PaidETH(address indexed from, uint256 amount);
     event PaidToken(address indexed from, address indexed token, uint256 amount);
 
+    // ---- Custom errors ----
     error ZeroAddress();
     error TokenNotSet();
+    error ForwardFailed();
+    error TransferFromFailed();
+    error ReceiveDisabled();
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
@@ -62,33 +66,27 @@ contract BaseTap is
         emit TokenChanged(token);
     }
 
-    function pause() external onlyOwner {
-        _pause();
-    }
-    function unpause() external onlyOwner {
-        _unpause();
-    }
+    function pause() external onlyOwner { _pause(); }
+    function unpause() external onlyOwner { _unpause(); }
 
     // -------- payments --------
     function payETH() external payable whenNotPaused nonReentrant {
         (bool ok, ) = payable(treasury).call{value: msg.value}("");
-        require(ok, "ETH forward failed");
+        if (!ok) revert ForwardFailed();
         emit PaidETH(msg.sender, msg.value);
     }
 
     function payToken(uint256 amount) external whenNotPaused nonReentrant {
         address token = acceptedToken;
         if (token == address(0)) revert TokenNotSet();
-        require(
-            IERC20(token).transferFrom(msg.sender, treasury, amount),
-            "ERC20 transferFrom failed"
-        );
+        bool ok = IERC20(token).transferFrom(msg.sender, treasury, amount);
+        if (!ok) revert TransferFromFailed();
         emit PaidToken(msg.sender, token, amount);
     }
 
     /// @dev Block raw ETH to enforce pause + nonReentrant via payETH().
     receive() external payable {
-        revert("Use payETH()");
+        revert ReceiveDisabled();
     }
 
     /// @dev Storage gap for future variables.
