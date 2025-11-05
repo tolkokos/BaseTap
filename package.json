@@ -11,7 +11,8 @@
     "deploy:proxy:base": "hardhat run --network base scripts/deploy-transparent.ts",
     "deploy:proxy:base-sepolia": "hardhat run --network baseSepolia scripts/deploy-transparent.ts",
     "upgrade": "hardhat run scripts/upgrade.ts",
-    "verify:impl": "hardhat run scripts/verify-impl.ts"
+    "verify:impl": "hardhat run scripts/verify-impl.ts",
+    "preupgrade": "hardhat run scripts/check-upgrade.ts"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
