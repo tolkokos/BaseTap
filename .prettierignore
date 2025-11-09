@@ -10,3 +10,5 @@ CHANGELOG.md
 CONTRIBUTING.md
 SECURITY.md
 LICENSE
+
+contracts/**/*.sol
