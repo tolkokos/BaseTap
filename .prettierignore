@@ -2,5 +2,11 @@ node_modules
 artifacts
 cache
 typechain-types
-dist
-pnpm-lock.yaml
+deployments/*.json
+
+.github/workflows/*.yml
+README.md
+CHANGELOG.md
+CONTRIBUTING.md
+SECURITY.md
+LICENSE
