@@ -1,9 +1,18 @@
+# lockfiles
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# deps and build
 node_modules
 artifacts
 cache
 typechain-types
+
+# deployments
 deployments/*.json
 
+# workflows and docs
 .github/workflows/*.yml
 README.md
 CHANGELOG.md
@@ -11,4 +20,5 @@ CONTRIBUTING.md
 SECURITY.md
 LICENSE
 
+# solidity handled by solhint
 contracts/**/*.sol
