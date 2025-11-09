@@ -1,0 +1,77 @@
+name: prerelease
+
+on:
+  push:
+    tags:
+      - "v*"
+
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to release (e.g., v0.1.0-rc.1 or v0.1.0)"
+        required: false
+      notes:
+        description: "Additional release notes"
+        required: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Determine tag
+        id: tag
+        run: |
+          if [ -n "${{ github.event.inputs.tag }}" ]; then
+            echo "value=${{ github.event.inputs.tag }}" >> $GITHUB_OUTPUT
+          else
+            echo "value=${GITHUB_REF_NAME}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npx hardhat compile
+
+      - name: Collect deployment jsons
+        id: collect
+        run: |
+          mkdir -p out
+          if [ -f "deployments/84532.json" ]; then cp deployments/84532.json out/; fi
+          if [ -f "deployments/8453.json" ]; then cp deployments/8453.json out/; fi
+          echo "files=$(ls -1 out 2>/dev/null | wc -l)" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.value }}
+          name: ${{ steps.tag.outputs.value }}
+          body: |
+            BaseTap release ${{ steps.tag.outputs.value }}
+
+            Notes:
+            ${{ github.event.inputs.notes }}
+
+            Artifacts:
+            - Deployment JSONs (if present)
+            - ABI and build artifacts (if attached)
+          prerelease: ${{ contains(steps.tag.outputs.value, '-rc') }}
+          fail_on_unmatched_files: false
+          files: |
+            out/*.json
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
