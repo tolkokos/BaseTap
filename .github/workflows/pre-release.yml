@@ -7,10 +7,10 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "Tag to release (e.g., v0.1.0-rc.1 or v0.1.0)"
+        description: "Tag to release (e.g., v0.1.0)"
         required: false
       notes:
-        description: "Additional release notes"
+        description: "Extra release notes"
         required: false
 
 jobs:
@@ -45,28 +45,23 @@ jobs:
           version: 9
           run_install: false
 
-      - name: Install dependencies (pnpm, no frozen lockfile)
+      - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
 
       - name: Build contracts
         run: npx hardhat compile
 
-      - name: Collect artifacts
+      - name: Prepare artifacts
         run: |
           mkdir -p out/abi out/typechain out/deployments
           if [ -d "artifacts/contracts" ]; then
             find artifacts/contracts -name "*.json" -maxdepth 2 -type f \
               -exec jq '.abi' {} \; | jq -s '.' > out/abi/abi.bundle.json || true
           fi
-          if [ -d "typechain-types" ]; then
-            cp -r typechain-types out/typechain/ || true
-          fi
-          if [ -d "deployments" ]; then
-            cp -r deployments/*.json out/deployments/ 2>/dev/null || true
-          fi
-          echo "done"
+          [ -d "typechain-types" ] && cp -r typechain-types out/typechain/ || true
+          [ -d "deployments" ] && cp -r deployments/*.json out/deployments/ 2>/dev/null || true
 
-      - name: Create GitHub Release
+      - name: Upload to release (create or update)
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.tag.outputs.value }}
@@ -74,15 +69,13 @@ jobs:
           body: |
             BaseTap release ${{ steps.tag.outputs.value }}
 
-            Key points:
-            - UUPS upgradeable payment logic, Base-focused
-            - Existing proxy deployments included via JSON
+            - UUPS upgradeable Base payment contract
+            - Existing proxy deployments attached
             - See CHANGELOG.md for details
 
-            Notes:
             ${{ github.event.inputs.notes }}
-          prerelease: ${{ contains(steps.tag.outputs.value, '-rc') }}
-          fail_on_unmatched_files: false
+          append_body: true
+          prerelease: false
           files: |
             out/abi/abi.bundle.json
             out/typechain/**/*
