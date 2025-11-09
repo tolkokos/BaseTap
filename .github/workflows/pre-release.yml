@@ -34,14 +34,19 @@ jobs:
             echo "value=${GITHUB_REF_NAME}" >> $GITHUB_OUTPUT
           fi
 
-      - name: Use Node.js 20
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
 
-      - name: Install dependencies
-        run: npm ci
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+          run_install: false
+
+      - name: Install dependencies (pnpm, no frozen lockfile)
+        run: pnpm install --no-frozen-lockfile
 
       - name: Build contracts
         run: npx hardhat compile
