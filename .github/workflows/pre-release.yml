@@ -1,10 +1,9 @@
-name: prerelease
+name: publish-release
 
 on:
   push:
     tags:
       - "v*"
-
   workflow_dispatch:
     inputs:
       tag:
@@ -44,16 +43,23 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build
+      - name: Build contracts
         run: npx hardhat compile
 
-      - name: Collect deployment jsons
-        id: collect
+      - name: Collect artifacts
         run: |
-          mkdir -p out
-          if [ -f "deployments/84532.json" ]; then cp deployments/84532.json out/; fi
-          if [ -f "deployments/8453.json" ]; then cp deployments/8453.json out/; fi
-          echo "files=$(ls -1 out 2>/dev/null | wc -l)" >> $GITHUB_OUTPUT
+          mkdir -p out/abi out/typechain out/deployments
+          if [ -d "artifacts/contracts" ]; then
+            find artifacts/contracts -name "*.json" -maxdepth 2 -type f \
+              -exec jq '.abi' {} \; | jq -s '.' > out/abi/abi.bundle.json || true
+          fi
+          if [ -d "typechain-types" ]; then
+            cp -r typechain-types out/typechain/ || true
+          fi
+          if [ -d "deployments" ]; then
+            cp -r deployments/*.json out/deployments/ 2>/dev/null || true
+          fi
+          echo "done"
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -63,15 +69,18 @@ jobs:
           body: |
             BaseTap release ${{ steps.tag.outputs.value }}
 
+            Key points:
+            - UUPS upgradeable payment logic, Base-focused
+            - Existing proxy deployments included via JSON
+            - See CHANGELOG.md for details
+
             Notes:
             ${{ github.event.inputs.notes }}
-
-            Artifacts:
-            - Deployment JSONs (if present)
-            - ABI and build artifacts (if attached)
           prerelease: ${{ contains(steps.tag.outputs.value, '-rc') }}
           fail_on_unmatched_files: false
           files: |
-            out/*.json
+            out/abi/abi.bundle.json
+            out/typechain/**/*
+            out/deployments/*.json
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
