@@ -66,12 +66,14 @@ jobs:
           echo "📋 Using proxy: $PROXY"
 
       - name: Upgrade contract
+        id: upgrade
         env:
           PROXY_ADDRESS: ${{ steps.proxy.outputs.proxy }}
           CONTRACT_VERSION: ${{ github.event.inputs.version }}
         run: |
           case "${{ github.event.inputs.network }}" in
             baseSepolia) NET=baseSepolia ;;
+            base) NET=base ;;
             sepolia) NET=sepolia ;;
           esac
           echo "🚀 Upgrading proxy $PROXY_ADDRESS on $NET to $CONTRACT_VERSION..."
