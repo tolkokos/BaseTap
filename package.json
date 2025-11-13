@@ -1,8 +1,22 @@
 {
   "name": "basetap",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "license": "MIT",
+  "description": "Instant onchain payment protocol for Base ecosystem with Base Pay and Account SDK integration",
+  "keywords": [
+    "base",
+    "base-network",
+    "ethereum",
+    "l2",
+    "coinbase",
+    "onchainkit",
+    "base-pay",
+    "smart-contracts",
+    "defi",
+    "payments",
+    "upgradeable"
+  ],
   "scripts": {
     "build": "hardhat compile",
     "deploy:proxy:sepolia": "hardhat run --network sepolia scripts/deploy-transparent.ts",
