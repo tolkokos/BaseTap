@@ -5,14 +5,28 @@ async function main() {
   if (!proxy) throw new Error("Set PROXY_ADDRESS in env");
   
   const contractName = process.env.CONTRACT_VERSION || "BaseTapV2";
-  console.log(`Upgrading to ${contractName}...`);
+  console.log(`\n🔄 Upgrading proxy ${proxy} to ${contractName}...\n`);
   
   const F = await ethers.getContractFactory(contractName);
-  const upgraded = await upgrades.upgradeProxy(proxy, F);
+  
+  // Force import existing proxy if not registered
+  try {
+    console.log("📝 Registering existing proxy...");
+    await upgrades.forceImport(proxy, F, { kind: "transparent" });
+    console.log("✅ Proxy registered\n");
+  } catch (e: any) {
+    // Proxy might already be registered, continue
+    console.log("ℹ️  Proxy already registered or registration skipped\n");
+  }
+  
+  console.log("🚀 Starting upgrade...");
+  const upgraded = await upgrades.upgradeProxy(proxy, F, { kind: "transparent" });
   await upgraded.waitForDeployment();
+  
   const impl = await upgrades.erc1967.getImplementationAddress(await upgraded.getAddress());
-  console.log("✅ Upgraded. New implementation:", impl);
+  console.log("\n✅ Upgrade complete!");
   console.log("📋 Proxy address:", proxy);
+  console.log("🆕 New implementation:", impl);
 }
 
 main().catch((e) => {
