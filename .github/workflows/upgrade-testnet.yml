@@ -1,0 +1,107 @@
+name: Upgrade BaseTap (Testnet)
+
+on:
+  workflow_dispatch:
+    inputs:
+      network:
+        type: choice
+        description: "Network to upgrade"
+        options: [baseSepolia, sepolia]
+        required: true
+        default: baseSepolia
+      version:
+        type: choice
+        description: "Contract version to upgrade to"
+        options: [BaseTapV2, BaseTap]
+        required: true
+        default: BaseTapV2
+
+permissions:
+  contents: write
+
+jobs:
+  upgrade:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install pnpm and deps
+        run: |
+          npm i -g pnpm
+          pnpm i --no-frozen-lockfile
+
+      - name: Build
+        run: pnpm build
+
+      - name: Write .env from secrets
+        run: |
+          echo "PRIVATE_KEY=${{ secrets.PRIVATE_KEY }}" >> .env
+          echo "OWNER_ADDRESS=${{ secrets.OWNER_ADDRESS }}" >> .env
+          echo "TREASURY_ADDRESS=${{ secrets.TREASURY_ADDRESS }}" >> .env
+          echo "SEPOLIA_RPC_URL=${{ vars.SEPOLIA_RPC_URL }}" >> .env
+          echo "BASE_SEPOLIA_RPC_URL=${{ vars.BASE_SEPOLIA_RPC_URL }}" >> .env
+          echo "ETHERSCAN_API_KEY=${{ secrets.ETHERSCAN_API_KEY }}" >> .env
+
+      - name: Load proxy address
+        id: proxy
+        run: |
+          case "${{ github.event.inputs.network }}" in
+            baseSepolia) FILE="deployments/baseSepolia.json" ;;
+            sepolia) FILE="deployments/sepolia.json" ;;
+          esac
+          if [ ! -f "$FILE" ]; then
+            echo "❌ Deployment file $FILE not found"
+            exit 1
+          fi
+          PROXY=$(jq -r '.proxy' "$FILE")
+          echo "proxy=$PROXY" >> $GITHUB_OUTPUT
+          echo "📋 Using proxy: $PROXY"
+
+      - name: Upgrade contract
+        env:
+          PROXY_ADDRESS: ${{ steps.proxy.outputs.proxy }}
+          CONTRACT_VERSION: ${{ github.event.inputs.version }}
+        run: |
+          case "${{ github.event.inputs.network }}" in
+            baseSepolia) NET=baseSepolia ;;
+            sepolia) NET=sepolia ;;
+          esac
+          echo "🚀 Upgrading proxy $PROXY_ADDRESS on $NET to $CONTRACT_VERSION..."
+          npx hardhat run --network "$NET" scripts/upgrade.ts | tee upgrade.log
+          IMPL=$(grep "New implementation:" upgrade.log | awk '{print $NF}')
+          echo "impl=$IMPL" >> $GITHUB_OUTPUT
+          echo "✅ Upgrade complete!"
+          echo "📋 New implementation: $IMPL"
+
+      - name: Update deployment file
+        run: |
+          case "${{ github.event.inputs.network }}" in
+            baseSepolia) FILE="deployments/baseSepolia.json" ;;
+            sepolia) FILE="deployments/sepolia.json" ;;
+          esac
+          IMPL=$(grep "New implementation:" upgrade.log | awk '{print $NF}')
+          jq --arg impl "$IMPL" --arg time "$(date -u +%FT%TZ)" \
+            '.implementation = $impl | .timestamp = $time | .verified = false' \
+            "$FILE" > "$FILE.tmp" && mv "$FILE.tmp" "$FILE"
+          
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add "$FILE"
+          git commit -m "chore(upgrade): update ${{ github.event.inputs.network }} to ${{ github.event.inputs.version }}" || echo "no changes"
+          git push
+
+      - name: Verify new implementation
+        env:
+          PROXY_ADDRESS: ${{ steps.proxy.outputs.proxy }}
+        run: |
+          case "${{ github.event.inputs.network }}" in
+            baseSepolia) NET=baseSepolia ;;
+            sepolia) NET=sepolia ;;
+          esac
+          npx hardhat run --network "$NET" scripts/verify-impl.ts || echo "⚠️  Verification skipped (explorer lag)"
