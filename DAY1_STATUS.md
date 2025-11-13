@@ -57,6 +57,7 @@
 **Созданные документы:**
 - ✅ `/docs/BASE_PAY_INTEGRATION.md` - интеграция Base Pay SDK
 - ✅ `/docs/BASE_ACCOUNT_SDK_INTEGRATION.md` - интеграция Base Account SDK
+- ✅ `/docs/GITHUB_SETUP.md` - настройка GitHub Secrets и Variables
 - ✅ `/.github/CODE_OF_CONDUCT.md` - правила сообщества
 
 **Обновленные документы:**
