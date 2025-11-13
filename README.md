@@ -54,29 +54,55 @@ Each file should include:
 
 ---
 
-## Quick Start (GitHub Codespaces / Actions only)
+## Quick Start (GitHub Actions)
 
-1. Open this repo in Codespaces.
-2. Create a `.env` file with required keys (see repository secrets/variables):
-   - `PRIVATE_KEY` - deployer private key
-   - `OWNER_ADDRESS` - contract owner address
-   - `TREASURY_ADDRESS` - treasury address for payments
-   - `ETHERSCAN_API_KEY` - for contract verification
-   - RPC URLs (optional, defaults to public RPCs)
-3. Install deps:
-   ```bash
-   npm ci
-   ```
-4. Compile:
-   ```bash
-   npx hardhat compile
-   ```
-5. Run static checks:
-   ```bash
-   npm run lint || true
-   ```
+### 1. Setup GitHub Secrets
 
-> All deploys are executed via GitHub Actions `workflow_dispatch`.
+Configure required secrets in your repository (Settings → Secrets and variables → Actions):
+
+**Required:**
+- `PRIVATE_KEY` - deployer wallet private key (with 0x prefix)
+- `OWNER_ADDRESS` - contract owner address
+- `TREASURY_ADDRESS` - treasury address for payments
+- `ETHERSCAN_API_KEY` - BaseScan API key for verification
+
+**Optional (for custom commits):**
+- `GIT_USER_NAME` - your name for git commits
+- `GIT_USER_EMAIL` - your email for git commits
+
+See [GitHub Setup Guide](./docs/GITHUB_SETUP.md) for detailed instructions.
+
+### 2. Deploy or Upgrade
+
+**Upgrade existing proxy:**
+1. Go to **Actions** → **Upgrade BaseTap**
+2. Select network: `baseSepolia` (testnet) or `base` (mainnet)
+3. Select version: `BaseTapV2`
+4. Click **Run workflow**
+
+**Deploy new proxy:**
+1. Go to **Actions** → **Deploy BaseTap (Transparent)**
+2. Select network and verify option
+3. Click **Run workflow**
+
+### 3. Local Development (optional)
+
+```bash
+# Install dependencies
+npm install
+
+# Compile contracts
+npm run build
+
+# Test scripts
+npm run test:scripts
+npm run test:storage
+
+# Lint
+npm run lint
+```
+
+> All production deploys are executed via GitHub Actions `workflow_dispatch`.
 
 ---
 
