@@ -27,6 +27,11 @@ jobs:
       - name: Compile contracts
         run: npm run build
 
+      - name: Run linting
+        run: |
+          npx prettier --check . || true
+          npx solhint "contracts/**/*.sol" -f table || true
+
       - name: Upload build artifacts
         if: always()
         uses: actions/upload-artifact@v4
