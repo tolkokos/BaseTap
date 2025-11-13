@@ -31,13 +31,11 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install pnpm and deps
-        run: |
-          npm i -g pnpm
-          pnpm i --no-frozen-lockfile
+      - name: Install dependencies
+        run: npm install
 
       - name: Build
-        run: pnpm build
+        run: npm run build
 
       - name: Write .env from secrets
         run: |
