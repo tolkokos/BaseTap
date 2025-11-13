@@ -2,6 +2,10 @@
 
 Instant onchain payment button for the Base ecosystem. Accepts ETH (and later ERC-20 like USDC), forwards funds to a treasury, and uses an upgradeable proxy (UUPS) to keep the logic evolvable. Built with Solidity + Hardhat and designed for GitHub Actions/Codespaces only.
 
+[![Base](https://img.shields.io/badge/Built%20on-Base-0052FF)](https://base.org)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Solidity](https://img.shields.io/badge/Solidity-0.8.24-blue)](https://soliditylang.org)
+
 ---
 
 ## Why BaseTap
@@ -45,15 +49,26 @@ Each file should include:
 ## Quick Start (GitHub Codespaces / Actions only)
 
 1. Open this repo in Codespaces.
-2. Create a .env from .env.example with the required keys (no local runs).
+2. Create a `.env` file with required keys (see repository secrets/variables):
+   - `PRIVATE_KEY` - deployer private key
+   - `OWNER_ADDRESS` - contract owner address
+   - `TREASURY_ADDRESS` - treasury address for payments
+   - `ETHERSCAN_API_KEY` - for contract verification
+   - RPC URLs (optional, defaults to public RPCs)
 3. Install deps:
+   ```bash
    npm ci
+   ```
 4. Compile:
+   ```bash
    npx hardhat compile
+   ```
 5. Run static checks:
+   ```bash
    npm run lint || true
+   ```
 
-> All deploys are executed via GitHub Actions workflow_dispatch.
+> All deploys are executed via GitHub Actions `workflow_dispatch`.
 
 ---
 
@@ -75,6 +90,22 @@ Each file should include:
 
 ---
 
+## Ecosystem Integration
+
+BaseTap is built for the Base ecosystem and integrates with:
+- **Base Pay SDK** - seamless payment experience
+- **Base Account SDK** - smart contract wallet integration
+- **Base Network** - low-cost, fast transactions
+- **BaseScan** - contract verification and transparency
+
+## Contributing
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for development guidelines.
+
 ## License
 
 MIT © BaseTap contributors
+
+---
+
+**Built with ❤️ for the Base ecosystem**
