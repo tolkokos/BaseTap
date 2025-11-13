@@ -102,11 +102,13 @@ jobs:
           git push
 
       - name: Verify new implementation
+        if: ${{ steps.upgrade.outputs.impl }}
         env:
           PROXY_ADDRESS: ${{ steps.proxy.outputs.proxy }}
         run: |
           case "${{ github.event.inputs.network }}" in
             baseSepolia) NET=baseSepolia ;;
+            base) NET=base ;;
             sepolia) NET=sepolia ;;
           esac
           npx hardhat run --network "$NET" scripts/verify-impl.ts || echo "⚠️  Verification skipped (explorer lag)"
