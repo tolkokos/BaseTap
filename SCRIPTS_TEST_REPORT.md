@@ -101,24 +101,33 @@ import "@openzeppelin/hardhat-upgrades";
 
 ## 🚀 GitHub Actions Workflows
 
-### `.github/workflows/upgrade-testnet.yml`
+### `.github/workflows/upgrade.yml`
 **Статус:** ✅ ГОТОВ
+
+**Поддержка сетей:**
+- ✅ Base Mainnet (`base`)
+- ✅ Base Sepolia (`baseSepolia`)
+- ✅ Ethereum Sepolia (`sepolia`)
 
 **Проверено:**
 - ✅ Читает адрес прокси из `deployments/*.json`
 - ✅ Использует правильные env переменные
 - ✅ Обновляет deployment file после апгрейда
 - ✅ Пытается verify implementation
+- ✅ Коммиты от твоего имени (через GIT_USER_NAME/GIT_USER_EMAIL)
 
 **Использование:**
 1. Открой GitHub → Actions
-2. Выбери "Upgrade BaseTap (Testnet)"
+2. Выбери "Upgrade BaseTap"
 3. Выбери:
-   - Network: `baseSepolia`
+   - Network: `baseSepolia` (testnet) или `base` (mainnet)
    - Version: `BaseTapV2`
 4. Run workflow
 
-⚠️ **Требуется:** PRIVATE_KEY в GitHub Secrets с owner правами на прокси
+⚠️ **Требуется:** 
+- PRIVATE_KEY в GitHub Secrets с owner правами
+- GIT_USER_NAME (опционально)
+- GIT_USER_EMAIL (опционально)
 
 ---
 
