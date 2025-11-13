@@ -1,4 +1,4 @@
-name: Upgrade BaseTap (Testnet)
+name: Upgrade BaseTap
 
 on:
   workflow_dispatch:
@@ -6,7 +6,7 @@ on:
       network:
         type: choice
         description: "Network to upgrade"
-        options: [baseSepolia, sepolia]
+        options: [baseSepolia, base, sepolia]
         required: true
         default: baseSepolia
       version:
