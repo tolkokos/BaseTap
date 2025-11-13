@@ -19,11 +19,19 @@ Instant onchain payment button for the Base ecosystem. Accepts ETH (and later ER
 
 ## Features
 
-- ETH payments with immediate forward to a configured treasury
-- Upgradeable (UUPS) architecture for safe future changes
+**V2 Enhancements:**
+- 📊 Complete payment history tracking with reference IDs
+- 🏪 Multi-merchant registry and payment routing
+- 📈 Real-time payment analytics and statistics
+- 🔍 Advanced event indexing for off-chain applications
+- 💾 Structured storage with mappings and structs
+
+**Core Features:**
+- ETH and ERC-20 (USDC) payments with instant forwarding
+- TransparentUpgradeableProxy for safe contract evolution
 - Pausable and non-reentrant execution guards
-- Per-network deployment JSONs (already present in this repo)
-- GitHub Actions CI + pre-release flow
+- Per-network deployment JSONs tracked on-chain
+- Automated CI/CD via GitHub Actions
 
 ---
 
