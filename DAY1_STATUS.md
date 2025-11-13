@@ -56,7 +56,6 @@
 - ✅ `/docs/BASE_PAY_INTEGRATION.md` - интеграция Base Pay SDK
 - ✅ `/docs/BASE_ACCOUNT_SDK_INTEGRATION.md` - интеграция Base Account SDK
 - ✅ `/.github/CODE_OF_CONDUCT.md` - правила сообщества
-- ✅ `/COMMIT_MESSAGES.md` - готовые сообщения для коммитов
 
 **Обновленные документы:**
 - ✅ `README.md` - добавлены V2 features, roadmap
