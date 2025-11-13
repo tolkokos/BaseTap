@@ -3,5 +3,7 @@
   "implementation": "0xCf18C1d62A138f2052E14d8dF2acB811B1304858",
   "proxyAdmin": "0x5Cb29A48f5245bB7B8803F48169780F5560805b1",
   "network": "base",
-  "timestamp": "<UTC time>"
+  "timestamp": "2025-01-20T00:00:00Z",
+  "verified": false,
+  "notes": "TransparentUpgradeableProxy deployment via GitHub Actions workflow"
 }
