@@ -42,9 +42,11 @@
 ### 3. Инфраструктура и CI/CD
 
 **GitHub Actions:**
-- ✅ Создан `upgrade-testnet.yml` - workflow для апгрейда на testnet
+- ✅ Создан `upgrade.yml` - универсальный workflow для апгрейда (Base Mainnet + Sepolia)
 - ✅ Улучшен `ci.yml` - добавлен linting
+- ✅ Улучшен `deploy.yml` - коммиты от твоего имени
 - ✅ Упрощена структура workflows
+- ✅ Поддержка GIT_USER_NAME и GIT_USER_EMAIL секретов
 
 **Скрипты:**
 - ✅ Обновлен `deploy-transparent.ts` - поддержка версий контракта
