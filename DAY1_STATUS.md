@@ -130,10 +130,16 @@
 **Команда для следующего шага:**
 ```bash
 # Через GitHub Actions UI:
-# Actions → Upgrade BaseTap (Testnet) → Run workflow
-# Network: baseSepolia
+# Actions → Upgrade BaseTap → Run workflow
+# Network: baseSepolia (для теста) или base (для mainnet)
 # Version: BaseTapV2
 ```
+
+**Настройка для коммитов от твоего имени:**
+1. Settings → Secrets → New secret
+2. Добавь `GIT_USER_NAME` (твоё имя)
+3. Добавь `GIT_USER_EMAIL` (твой email)
+4. Или оставь пустым - будет использоваться GitHub username
 
 ---
 
