@@ -1,78 +1,78 @@
 # GitHub Repository Setup Guide
 
-Полная инструкция по настройке GitHub Secrets и Variables для работы с BaseTap.
+Complete guide for configuring GitHub Secrets and Variables for BaseTap deployment and operations.
 
 ---
 
 ## 🔑 Required GitHub Secrets
 
-Перейди в: **Settings** → **Secrets and variables** → **Actions** → **New repository secret**
+Navigate to: **Settings** → **Secrets and variables** → **Actions** → **New repository secret**
 
 ### 1. PRIVATE_KEY
-**Описание:** Приватный ключ кошелька с owner правами на контракт  
-**Формат:** `0xabc123...` (с 0x префиксом)  
-**Где взять:** Из MetaMask/Coinbase Wallet → Account details → Export Private Key
+**Description:** Private key of the wallet with owner permissions on the contract  
+**Format:** `0xabc123...` (with 0x prefix)  
+**How to get:** From MetaMask/Coinbase Wallet → Account details → Export Private Key
 
-⚠️ **ВАЖНО:** Этот кошелек должен быть owner контракта BaseTap
+⚠️ **IMPORTANT:** This wallet must be the owner of the BaseTap contract
 
 ---
 
 ### 2. OWNER_ADDRESS
-**Описание:** Адрес owner кошелька  
-**Формат:** `0xYourAddress...`  
-**Где взять:** Скопируй адрес из MetaMask/Coinbase Wallet
+**Description:** Owner wallet address  
+**Format:** `0xYourAddress...`  
+**How to get:** Copy address from MetaMask/Coinbase Wallet
 
 ---
 
 ### 3. TREASURY_ADDRESS
-**Описание:** Адрес treasury для получения платежей  
-**Формат:** `0xTreasuryAddress...`  
-**Можно:** Использовать тот же адрес что и OWNER_ADDRESS
+**Description:** Treasury address for receiving payments  
+**Format:** `0xTreasuryAddress...`  
+**Note:** Can use the same address as OWNER_ADDRESS
 
 ---
 
 ### 4. ETHERSCAN_API_KEY
-**Описание:** API ключ для верификации контрактов на BaseScan  
-**Где взять:** https://basescan.org/myapikey
+**Description:** API key for contract verification on BaseScan  
+**How to get:** https://basescan.org/myapikey
 
-**Шаги:**
-1. Создай аккаунт на BaseScan.org
-2. Перейди в API Keys
-3. Создай новый ключ
-4. Скопируй и добавь в Secrets
+**Steps:**
+1. Create an account on BaseScan.org
+2. Navigate to API Keys
+3. Create a new key
+4. Copy and add to Secrets
 
-ℹ️ **Примечание:** Один ключ работает для Base Mainnet и Base Sepolia
-
----
-
-### 5. GIT_USER_NAME (опционально)
-**Описание:** Твоё имя для git коммитов  
-**Формат:** `Your Name` (текст)  
-**Пример:** `John Doe`
-
-Если не указать - будет использоваться твой GitHub username.
+ℹ️ **Note:** One key works for both Base Mainnet and Base Sepolia
 
 ---
 
-### 6. GIT_USER_EMAIL (опционально)
-**Описание:** Твой email для git коммитов  
-**Формат:** `your.email@example.com`  
-**Пример:** `john@example.com`
+### 5. GIT_USER_NAME (optional)
+**Description:** Your name for git commits  
+**Format:** `Your Name` (text)  
+**Example:** `John Doe`
 
-Если не указать - будет использоваться `username@users.noreply.github.com`.
+If not specified - your GitHub username will be used.
+
+---
+
+### 6. GIT_USER_EMAIL (optional)
+**Description:** Your email for git commits  
+**Format:** `your.email@example.com`  
+**Example:** `john@example.com`
+
+If not specified - `username@users.noreply.github.com` will be used.
 
 ---
 
 ## 📊 Optional GitHub Variables
 
-Перейди в: **Settings** → **Secrets and variables** → **Actions** → **Variables** tab
+Navigate to: **Settings** → **Secrets and variables** → **Actions** → **Variables** tab
 
 ### 1. BASE_RPC_URL
-**Описание:** RPC endpoint для Base Mainnet  
-**Default:** `https://mainnet.base.org` (публичный)  
-**Рекомендация:** Используй Alchemy или Infura для лучшей стабильности
+**Description:** RPC endpoint for Base Mainnet  
+**Default:** `https://mainnet.base.org` (public)  
+**Recommendation:** Use Alchemy or Infura for better stability
 
-**Пример (Alchemy):**
+**Example (Alchemy):**
 ```
 https://base-mainnet.g.alchemy.com/v2/YOUR_API_KEY
 ```
@@ -80,10 +80,10 @@ https://base-mainnet.g.alchemy.com/v2/YOUR_API_KEY
 ---
 
 ### 2. BASE_SEPOLIA_RPC_URL
-**Описание:** RPC endpoint для Base Sepolia (testnet)  
-**Default:** `https://base-sepolia-rpc.publicnode.com` (публичный)
+**Description:** RPC endpoint for Base Sepolia (testnet)  
+**Default:** `https://base-sepolia-rpc.publicnode.com` (public)
 
-**Пример (Alchemy):**
+**Example (Alchemy):**
 ```
 https://base-sepolia.g.alchemy.com/v2/YOUR_API_KEY
 ```
@@ -91,14 +91,14 @@ https://base-sepolia.g.alchemy.com/v2/YOUR_API_KEY
 ---
 
 ### 3. SEPOLIA_RPC_URL
-**Описание:** RPC endpoint для Ethereum Sepolia  
-**Default:** `https://ethereum-sepolia-rpc.publicnode.com` (публичный)
+**Description:** RPC endpoint for Ethereum Sepolia  
+**Default:** `https://ethereum-sepolia-rpc.publicnode.com` (public)
 
 ---
 
-## 🎯 Topics для репозитория
+## 🎯 Repository Topics
 
-Добавь эти topics в Settings → General → Topics:
+Add these topics in Settings → General → Topics:
 
 ```
 base
@@ -116,7 +116,7 @@ solidity
 web3
 ```
 
-**Зачем?** Для индексации проекта Base Network и другими инструментами для аирдропа.
+**Why?** For project indexing by Base Network and other tools for potential airdrops.
 
 ---
 
@@ -130,55 +130,55 @@ Instant onchain payment protocol for Base ecosystem | Base Pay + Account SDK + O
 
 ---
 
-## ✅ Проверка настройки
+## ✅ Setup Verification
 
-После добавления всех secrets, запусти тест:
+After adding all secrets, run a test:
 
-1. Перейди в **Actions**
-2. Выбери **CI** workflow
-3. Нажми **Run workflow**
-4. Если успешно ✅ - всё настроено правильно
+1. Navigate to **Actions**
+2. Select **CI** workflow
+3. Click **Run workflow**
+4. If successful ✅ - everything is configured correctly
 
 ---
 
-## 🚀 Первый upgrade на testnet
+## 🚀 First Testnet Upgrade
 
-**Когда все secrets настроены:**
+**When all secrets are configured:**
 
 1. **Actions** → **Upgrade BaseTap**
 2. **Run workflow**
-3. Выбери:
+3. Select:
    - Network: `baseSepolia`
    - Version: `BaseTapV2`
 4. **Run workflow**
 
-Ожидаемый результат:
-- ✅ Upgrade выполнен
-- ✅ Новый implementation задеплоен
-- ✅ Deployment file обновлён
-- ✅ Коммит от твоего имени
-- ✅ Verification на BaseScan (может быть отложена)
+Expected result:
+- ✅ Upgrade executed
+- ✅ New implementation deployed
+- ✅ Deployment file updated
+- ✅ Commit from your name
+- ✅ Verification on BaseScan (may be delayed)
 
 ---
 
-## 🔐 Безопасность
+## 🔐 Security
 
-- ❌ **НЕ КОМИТИТЬ** .env файл с secrets
-- ❌ **НЕ ДЕЛИТЬСЯ** PRIVATE_KEY ни с кем
-- ✅ Используй отдельный кошелек для деплоев
-- ✅ Регулярно проверяй баланс owner кошелька
-- ✅ Используй hardware wallet для mainnet операций (опционально)
-
----
-
-## 📞 Поддержка
-
-Если возникают проблемы:
-1. Проверь что все secrets добавлены
-2. Проверь формат (с 0x префиксом для адресов и ключей)
-3. Проверь баланс кошелька (нужен ETH для gas на Base)
-4. Проверь что ты owner контракта
+- ❌ **DO NOT COMMIT** .env file with secrets
+- ❌ **DO NOT SHARE** PRIVATE_KEY with anyone
+- ✅ Use a separate wallet for deployments
+- ✅ Regularly check owner wallet balance
+- ✅ Use hardware wallet for mainnet operations (optional)
 
 ---
 
-**Готово к работе!** 🎉
+## 📞 Support
+
+If you encounter issues:
+1. Verify all secrets are added
+2. Check format (with 0x prefix for addresses and keys)
+3. Check wallet balance (need ETH for gas on Base)
+4. Verify you are the contract owner
+
+---
+
+**Ready to deploy!** 🎉
