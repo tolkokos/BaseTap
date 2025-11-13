@@ -45,6 +45,7 @@ jobs:
           echo "OWNER_ADDRESS=${{ secrets.OWNER_ADDRESS }}" >> .env
           echo "TREASURY_ADDRESS=${{ secrets.TREASURY_ADDRESS }}" >> .env
           echo "SEPOLIA_RPC_URL=${{ vars.SEPOLIA_RPC_URL }}" >> .env
+          echo "BASE_RPC_URL=${{ vars.BASE_RPC_URL }}" >> .env
           echo "BASE_SEPOLIA_RPC_URL=${{ vars.BASE_SEPOLIA_RPC_URL }}" >> .env
           echo "ETHERSCAN_API_KEY=${{ secrets.ETHERSCAN_API_KEY }}" >> .env
 
