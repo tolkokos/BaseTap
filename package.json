@@ -24,10 +24,9 @@
     "deploy:proxy:base-sepolia": "hardhat run --network baseSepolia scripts/deploy-transparent.ts",
     "upgrade": "hardhat run scripts/upgrade.ts",
     "verify:impl": "hardhat run scripts/verify-impl.ts",
-    "preupgrade": "hardhat run scripts/check-upgrade.ts",
     "read:proxy": "hardhat run scripts/read-proxy-info.ts",
-    "set:token": "hardhat run scripts/set-token.ts",
     "lint:sol": "solhint 'contracts/**/*.sol'",
+    "lint": "prettier --check . && solhint 'contracts/**/*.sol'",
     "fmt": "prettier --write .",
     "fmt:check": "prettier --check ."
   },
