@@ -6,3 +6,7 @@ cache
 typechain-types
 coverage
 dist
+-e 
+# Environment files
+*.env
+*.env.*
