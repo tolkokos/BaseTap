@@ -8,7 +8,10 @@ async function main() {
   const treasury = process.env.TREASURY_ADDRESS || deployer.address;
   const token = process.env.USDC_ADDRESS || ethers.ZeroAddress;
 
-  const F = await ethers.getContractFactory("BaseTap");
+  const contractName = process.env.CONTRACT_VERSION || "BaseTap";
+  console.log(`Deploying ${contractName}...`);
+  
+  const F = await ethers.getContractFactory(contractName);
   const proxy = await upgrades.deployProxy(F, [owner, treasury, token], {
     kind: "transparent",
     initializer: "initialize",
