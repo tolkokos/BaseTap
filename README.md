@@ -82,10 +82,19 @@ Each file should include:
 
 ## Roadmap
 
-- v0.1.0-rc: initial UUPS proxy deployments (Base Sepolia, then Base Mainnet)
-- v0.1.0: public release, README with tx links, minimal UI example
-- v0.1.x: Base Pay and Base Account SDK integration
-- v0.2.x: ERC-20 (USDC) support, reference IDs, events indexing
+**✅ Completed:**
+- v0.1.0: Initial TransparentProxy deployments (Base Mainnet + Sepolia)
+- v0.2.0: Payment history, merchant registry, analytics (BaseTapV2)
+
+**🚀 In Progress:**
+- Base Pay SDK integration
+- Base Account SDK for smart wallets
+- OnchainKit UI components
+
+**📋 Planned:**
+- v0.3.0: ERC-721 payment receipt NFTs
+- v0.4.0: Base DeFi integrations (Aerodrome, Uniswap)
+- v0.5.0: Batch payment processing
 
 ---
 
